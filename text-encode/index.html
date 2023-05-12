@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Simple Stream Pump</title>
+  </head>
+  <body>
+    <h1>Simple Stream Pump</h1>
+
+    <div id="output"></div>
+    <script>
+      const image = document.getElementById("target");
+      const encoder = new TextEncoder();
+
+      const stream = new ReadableStream({
+        start(controller) {
+          controller.enqueue(encoder.encode("Hello "));
+          controller.enqueue(encoder.encode("world!"));
+          controller.close();
+        },
+      });
+
+      // fetch the stream and write to div#output
+
+      // Fetch the original image
+      // fetch(stream)
+      //   // Retrieve its body as ReadableStream
+      //   .then((response) => response.body)
+      //   // Create a new response out of the stream
+      //   .then((rs) => new Response(rs))
+      //   // create a text decoder
+      //   .then((response) => response.text())
+      //   .then((text) => (document.getElementById("output").textContent += text))
+      //   .catch(console.error);
+      // Create an object URL for the response
+      // .then(response => response.blob())
+      // .then(blob => URL.createObjectURL(blob))
+      // // Update image
+      // .then(url => image.src = url)
+      // .catch(console.error);
+
+      // // write the stream to div#output
+      stream
+        .pipeThrough(new TextDecoderStream())
+        .pipeTo(
+          new WritableStream({
+            write(chunk) {
+              document.getElementById("output").textContent += chunk;
+            },
+          })
+        )
+        .catch(console.error);
+    </script>
+  </body>
+</html>

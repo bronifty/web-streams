@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Simple Stream Pump</title>
+  </head>
+  <body>
+    <h1>Simple Stream Pump</h1>
+
+    <div id="output"></div>
+    <script>
+      // Identify the output element
+      const outputElement = document.getElementById("output");
+
+      // Define a TextEncoder
+      const encoder = new TextEncoder();
+
+      // Create a custom ReadableStream
+      const stream = new ReadableStream({
+        start(controller) {
+          controller.enqueue(new TextEncoder().encode("Hello "));
+          setTimeout(() => {
+            controller.enqueue(encoder.encode("world!!!"));
+            controller.close();
+          }, 1000);
+        },
+      });
+
+      // Get a reader from the stream
+      const reader = stream.getReader();
+
+      // Start reading the stream
+      new ReadableStream({
+        start(controller) {
+          function push() {
+            reader.read().then(({ done, value }) => {
+              if (done) {
+                // Close the stream
+                controller.close();
+                return;
+              }
+
+              // Convert the Uint8Array to a string and append it to the output element
+              outputElement.textContent += new TextDecoder().decode(value);
+
+              // Read the next chunk
+              push();
+            });
+          }
+
+          push();
+        },
+      });
+    </script>
+  </body>
+</html>
