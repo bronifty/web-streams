@@ -45,17 +45,12 @@
 
         const rangeIterator = makeRangeIterator(0, 99, 1);
         const readableStream = iteratorToStream(rangeIterator);
-        const reader = readableStream.getReader();
-        console.log(reader);
-        while (true) {
-          // not calling await will cause an infinite loop because the promise will never resolve and thus there will be no done value to break out of the loop
-          // const { value, done } = reader.read();
-          const { value, done } = await reader.read();
-          if (done) {
-            break;
-          }
-          console.log(value);
-        }
+        const responseStream = new Response(readableStream, {
+          headers: { "Content-Type": "text/html" },
+        });
+        const responseText = await responseStream.text();
+
+        console.log(responseText);
       }
 
       run();

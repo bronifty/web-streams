@@ -1,0 +1,32 @@
+<html>
+  <body>
+    <script>
+      const run = async () => {
+        const response = await fetch("../media/test.txt");
+        let total = 0;
+
+        // Iterate response.body (a ReadableStream) asynchronously
+        for await (const chunk of response.body) {
+          // Do something with each chunk
+          // Here we just accumulate the size of the response.
+          total += chunk.length;
+        }
+
+        // Do something with the total
+        console.log(total);
+      };
+      run();
+    </script>
+    <style>
+      body {
+        background: #222;
+        color: #ddd;
+        font-size: 2rem;
+      }
+      img {
+        width: 200px;
+        height: 200px;
+      }
+    </style>
+  </body>
+</html>

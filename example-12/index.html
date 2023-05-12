@@ -1,0 +1,46 @@
+<html>
+  <body>
+    <script>
+      function* makeTextIterator(text) {
+        for (let i = 0; i < text.length; i++) {
+          yield text.charAt(i);
+        }
+      }
+
+      async function run() {
+        const textIterator = makeTextIterator("Hello, world!");
+        let textFromIterator = "";
+        for (let char of textIterator) {
+          textFromIterator += char;
+        }
+
+        // Create a new Response object
+        const response = new Response(textFromIterator, {
+          status: 200,
+          headers: {
+            "Content-Type": "text/plain",
+          },
+        });
+
+        // Use the text() method to read the response body as text
+        const bodyText = await response.text();
+
+        // Log the body text to the console
+        console.log(bodyText);
+      }
+
+      run();
+    </script>
+    <style>
+      body {
+        background: #222;
+        color: #ddd;
+        font-size: 2rem;
+      }
+      img {
+        width: 200px;
+        height: 200px;
+      }
+    </style>
+  </body>
+</html>

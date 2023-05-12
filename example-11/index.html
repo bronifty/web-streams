@@ -1,0 +1,42 @@
+<html>
+  <body>
+    <!-- <img
+      src="../media/tortoise.png"
+      width="150"
+      height="84"
+      alt="Tortoise Original" />
+    <img id="imageOutput" src="" alt="Test Image" />
+    <div id="outputTextElement"></div> -->
+    <script>
+      const imageOutputElement = document.getElementById("imageOutput");
+      async function run() {
+        // Create a new Response object
+        const response = new Response("Hello, world!", {
+          status: 200,
+          headers: {
+            "Content-Type": "text/plain",
+          },
+        });
+
+        // Use the text() method to read the response body as text
+        const bodyText = await response.text();
+
+        // Log the body text to the console
+        console.log(bodyText);
+      }
+
+      run();
+    </script>
+    <style>
+      body {
+        background: #222;
+        color: #ddd;
+        font-size: 2rem;
+      }
+      img {
+        width: 200px;
+        height: 200px;
+      }
+    </style>
+  </body>
+</html>
