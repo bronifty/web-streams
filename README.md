@@ -360,3 +360,5 @@ getReader();
   </body>
 </html>
 ```
+
+- example 8 i am [here at mdn ReadableStream](https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream)

@@ -1,0 +1,163 @@
+<html>
+  <body>
+    <img
+      src="../media/tortoise.png"
+      width="150"
+      height="84"
+      alt="Tortoise Original" />
+    <img id="imageOutput" src="" alt="Test Image" />
+    <div id="outputTextElement"></div>
+    <script>
+      const imageOutputElement = document.getElementById("imageOutput");
+
+      // fetch("../media/test.txt")
+      //   .then((response) => response.body)
+      //   .then((rb) => {
+      //     const reader = rb.getReader();
+      //     // with fetch response body get a reader and manually create a ReadableStream to enqueue the values of the reader
+      //     return new ReadableStream({
+      //       start(controller) {
+      //         // The following function handles each data chunk
+      //         function push() {
+      //           // "done" is a Boolean and value a "Uint8Array"
+      //           reader.read().then(({ done, value }) => {
+      //             // If there is no more data to read
+      //             if (done) {
+      //               console.log("done", done);
+      //               controller.close();
+      //               return;
+      //             }
+      //             // Get the data and send it to the browser via the controller
+      //             controller.enqueue(value);
+      //             // Check chunks by logging to the console
+      //             console.log(done, value);
+      //             push();
+      //           });
+      //         }
+
+      //         push();
+      //       },
+      //     });
+      //   })
+      //   .then((stream) =>
+      //     // Respond with our stream
+      //     new Response(stream, {
+      //       headers: { "Content-Type": "text/html" },
+      //     }).text()
+      //   )
+      //   .then((result) => {
+      //     // Do things with result
+      //     document.querySelector("#outputTextElement").textContent += result;
+      //     console.log(result);
+      //   });
+
+      // function makeRangeIterator(start = 0, end = 99, step = 1) {
+      //   let nextIndex = start;
+      //   let iterationCount = 0;
+
+      //   const rangeIterator = {
+      //     next() {
+      //       let result;
+      //       if (nextIndex < end) {
+      //         result = { value: nextIndex, done: false };
+      //         nextIndex += step;
+      //         iterationCount++;
+      //         return result;
+      //       }
+      //       return { value: iterationCount, done: true };
+      //     },
+      //   };
+      //   return rangeIterator;
+      // }
+
+      // function iteratorToStream(iterator) {
+      //   return new ReadableStream({
+      //     async pull(controller) {
+      //       const { value, done } = await iterator.next();
+
+      //       if (done) {
+      //         controller.close();
+      //       } else {
+      //         controller.enqueue(value);
+      //       }
+      //     },
+      //   });
+      // }
+
+      // const rangeIterator = makeRangeIterator(0, 99, 1);
+      // const readableStream = iteratorToStream(rangeIterator);
+
+      // const getStreamValues = async (stream) => {
+      //   for await (const chunk of stream.values) {
+      //     console.log(chunk);
+      //   }
+      // };
+      // getStreamValues(readableStream);
+
+      // const responseStream = new Response(readableStream, {
+      //   headers: { "Content-Type": "text/html" },
+      // });
+      // const responseText = responseStream.text();
+      // console.log("responseText: ", responseText);
+
+      function makeRangeIterator(start = 0, stop = 99, step = 1) {
+        let nextIndex = start;
+        let iterationCount = 0;
+
+        const rangeIterator = {
+          next: () => {
+            let result;
+            if (nextIndex < stop) {
+              result = { value: `nextIndex: ${nextIndex}`, done: false };
+              nextIndex += step;
+              iterationCount++;
+              return result;
+            }
+            return { value: null, done: true };
+          },
+        };
+        return rangeIterator;
+      }
+
+      function iteratorToStream(iterator) {
+        return new ReadableStream({
+          async pull(controller) {
+            const { value, done } = await iterator.next();
+
+            if (done) {
+              controller.close();
+            } else {
+              controller.enqueue(`value: ${value}\n done: ${done}`);
+            }
+          },
+        });
+      }
+
+      const rangeIterator = makeRangeIterator(0, 99, 1);
+      const readableStream = iteratorToStream(rangeIterator);
+
+      const getStreamValues = async (stream) => {
+        const reader = stream.getReader();
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) {
+            break;
+          }
+          console.log(value);
+        }
+      };
+      getStreamValues(readableStream);
+    </script>
+    <style>
+      body {
+        background: #222;
+        color: #ddd;
+        font-size: 2rem;
+      }
+      img {
+        width: 200px;
+        height: 200px;
+      }
+    </style>
+  </body>
+</html>
