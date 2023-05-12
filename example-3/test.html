@@ -1,0 +1,39 @@
+<html>
+  <body>
+    <div id="output"></div>
+    <script>
+      // input variables
+      let url = "../media/test.txt";
+      let outputElement = document.querySelector("#output");
+
+      const pushText = async ({ reader, outputElement }) => {
+        const { done, value } = await reader.read();
+        if (done) {
+          return;
+        }
+        output.textContent += new TextDecoder().decode(value);
+        pushText({ reader });
+      };
+      const getReader = async ({ url }) => {
+        const res = new ReadableStream(
+          await fetch(url).then((response) => response.body)
+        );
+        const reader = res.getReader();
+        return reader;
+      };
+      const kickoffStream = async ({ url, outputElement }) => {
+        const reader = await getReader({ url });
+        pushText({ reader, outputElement });
+      };
+      kickoffStream({ url, output });
+      // getReader({ url }).then((reader) => pushText({ reader, outputElement }));
+    </script>
+    <style>
+      body {
+        background: #222;
+        color: #ddd;
+        font-size: 2rem;
+      }
+    </style>
+  </body>
+</html>

@@ -1,0 +1,74 @@
+<html>
+  <body>
+    <img
+      src="../media/tortoise.png"
+      width="150"
+      height="84"
+      alt="Tortoise Original" />
+    <img id="imageOutput" src="" alt="Test Image" />
+    <script>
+      const imageOutputElement = document.getElementById("imageOutput");
+
+      async function fetchImage() {
+        const response = await fetch("../media/test.png");
+        const rs = response.body;
+        const reader = rs.getReader();
+
+        const stream = new ReadableStream({
+          async start(controller) {
+            while (true) {
+              const { done, value } = await reader.read();
+
+              if (done) {
+                break;
+              }
+
+              controller.enqueue(value);
+            }
+
+            controller.close();
+            reader.releaseLock();
+          },
+        });
+
+        return new Response(stream);
+      }
+
+      async function getBlob(response) {
+        return await response.blob();
+      }
+
+      function createObjectURL(blob) {
+        return URL.createObjectURL(blob);
+      }
+
+      function updateImageSource(url) {
+        imageOutputElement.src = url;
+      }
+
+      async function fetchAndDisplayImage() {
+        try {
+          const response = await fetchImage();
+          const blob = await getBlob(response);
+          const url = createObjectURL(blob);
+          updateImageSource(url);
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+      fetchAndDisplayImage();
+    </script>
+    <style>
+      body {
+        background: #222;
+        color: #ddd;
+        font-size: 2rem;
+      }
+      img {
+        width: 200px;
+        height: 200px;
+      }
+    </style>
+  </body>
+</html>
