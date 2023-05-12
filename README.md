@@ -250,6 +250,7 @@ getReader();
 ```
 
 - example-4/index-3.html a simpler design to showcase fetch body itself returns a ReadableStream; it doesn't need to be explicitly created
+- notably, the blob is created from the fetch response, not its body per se; once you get the fetch response body, you have to get a reader from it, then create a ReadableStream and use the reader's read method to get and enqueue the values, which are returned as a stream, from which a blob can be created
 
 ```html
 <html>
@@ -266,6 +267,10 @@ getReader();
       async function fetchAndDisplayImage() {
         try {
           const response = await fetch("../media/test.png");
+          // this part doesn't work
+          // const rb = await response.body;
+          // const reader = await rb.getReader();
+          // const blob = await reader.blob();
           const blob = await response.blob();
           const url = URL.createObjectURL(blob);
           imageOutputElement.src = url;
