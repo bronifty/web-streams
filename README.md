@@ -248,3 +248,45 @@ getReader();
   </body>
 </html>
 ```
+
+- example-4/index-3.html a simpler design to showcase fetch body itself returns a ReadableStream; it doesn't need to be explicitly created
+
+```html
+<html>
+  <body>
+    <img
+      src="../media/tortoise.png"
+      width="150"
+      height="84"
+      alt="Tortoise Original" />
+    <img id="imageOutput" src="" alt="Test Image" />
+    <script>
+      const imageOutputElement = document.getElementById("imageOutput");
+
+      async function fetchAndDisplayImage() {
+        try {
+          const response = await fetch("../media/test.png");
+          const blob = await response.blob();
+          const url = URL.createObjectURL(blob);
+          imageOutputElement.src = url;
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+      fetchAndDisplayImage();
+    </script>
+    <style>
+      body {
+        background: #222;
+        color: #ddd;
+        font-size: 2rem;
+      }
+      img {
+        width: 200px;
+        height: 200px;
+      }
+    </style>
+  </body>
+</html>
+```
