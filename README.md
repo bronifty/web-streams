@@ -163,3 +163,88 @@ getReader();
   </body>
 </html>
 ```
+
+## Binary Resource Examples
+
+- example 5 fetch a binary resource and display it in the DOM
+
+```html
+<html>
+  <body>
+    <h1>index-5!</h1>
+    <img
+      src="../media/tortoise.png"
+      width="150"
+      height="84"
+      alt="Tortoise Original" />
+    <img id="imageOutput" src="" alt="Test Image" />
+    <script>
+      const imageOutputElement = document.getElementById("imageOutput");
+
+      async function fetchImageAsReadableStreamReader() {
+        const res = await fetch("../media/test.png");
+        const rb = res.body;
+        const reader = rb.getReader();
+        return reader;
+      }
+
+      async function createStream(reader) {
+        return new ReadableStream({
+          async start(controller) {
+            while (true) {
+              const { done, value } = await reader.read();
+
+              if (done) {
+                break;
+              }
+
+              controller.enqueue(value);
+            }
+
+            controller.close();
+            reader.releaseLock();
+          },
+        });
+      }
+
+      async function getBlobFromStream(stream) {
+        const response = new Response(stream);
+        return await response.blob();
+      }
+
+      function createObjectURL(blob) {
+        return URL.createObjectURL(blob);
+      }
+
+      function updateImageSource(url) {
+        imageOutputElement.src = url;
+      }
+
+      async function fetchAndDisplayImage() {
+        try {
+          const reader = await fetchImageAsReadableStreamReader();
+          const stream = await createStream(reader);
+          const blob = await getBlobFromStream(stream);
+          const url = createObjectURL(blob);
+          updateImageSource(url);
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+      fetchAndDisplayImage();
+    </script>
+    <style>
+      body {
+        background: #222;
+        color: #ddd;
+        font-size: 2rem;
+      }
+      img {
+        width: 200px;
+        height: 200px;
+      }
+    </style>
+  </body>
+</html>
+```
