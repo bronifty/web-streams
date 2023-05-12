@@ -1,5 +1,8 @@
 # web-streams
 
+- inspiration [vercel ssr streams](https://vercel.com/docs/concepts/functions/edge-functions/streaming)
+- education [web.dev/streams](https://web.dev/streams/)
+
 ### Resource Types
 
 - Reading
