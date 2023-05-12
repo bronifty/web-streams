@@ -1,0 +1,64 @@
+<html>
+  <body>
+    <img
+      src="../media/tortoise.png"
+      width="150"
+      height="84"
+      alt="Tortoise Original" />
+    <img id="imageOutput" src="" alt="Test Image" />
+    <script>
+      const imageOutputElement = document.getElementById("imageOutput");
+
+      fetch("https://www.example.org")
+        .then((response) => response.body)
+        .then((rb) => {
+          const reader = rb.getReader();
+
+          return new ReadableStream({
+            start(controller) {
+              // The following function handles each data chunk
+              function push() {
+                // "done" is a Boolean and value a "Uint8Array"
+                reader.read().then(({ done, value }) => {
+                  // If there is no more data to read
+                  if (done) {
+                    console.log("done", done);
+                    controller.close();
+                    return;
+                  }
+                  // Get the data and send it to the browser via the controller
+                  controller.enqueue(value);
+                  // Check chunks by logging to the console
+                  console.log(done, value);
+                  push();
+                });
+              }
+
+              push();
+            },
+          });
+        })
+        .then((stream) =>
+          // Respond with our stream
+          new Response(stream, {
+            headers: { "Content-Type": "text/html" },
+          }).text()
+        )
+        .then((result) => {
+          // Do things with result
+          console.log(result);
+        });
+    </script>
+    <style>
+      body {
+        background: #222;
+        color: #ddd;
+        font-size: 2rem;
+      }
+      img {
+        width: 200px;
+        height: 200px;
+      }
+    </style>
+  </body>
+</html>

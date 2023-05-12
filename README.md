@@ -249,8 +249,7 @@ getReader();
 </html>
 ```
 
-- example-4/index-3.html a simpler design to showcase fetch body itself returns a ReadableStream; it doesn't need to be explicitly created
-- notably, the blob is created from the fetch response, not its body per se; once you get the fetch response body, you have to get a reader from it, then create a ReadableStream and use the reader's read method to get and enqueue the values, which are returned as a stream, from which a blob can be created
+- example-6 a simpler design to showcase fetch body itself returns a ReadableStream; it doesn't need to be explicitly created
 
 ```html
 <html>
@@ -272,6 +271,72 @@ getReader();
           // const reader = await rb.getReader();
           // const blob = await reader.blob();
           const blob = await response.blob();
+          const url = URL.createObjectURL(blob);
+          imageOutputElement.src = url;
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+      fetchAndDisplayImage();
+    </script>
+    <style>
+      body {
+        background: #222;
+        color: #ddd;
+        font-size: 2rem;
+      }
+      img {
+        width: 200px;
+        height: 200px;
+      }
+    </style>
+  </body>
+</html>
+```
+
+- example-7 expanding on the simpler design to make each aspect more explicit
+
+```html
+<html>
+  <body>
+    <img
+      src="../media/tortoise.png"
+      width="150"
+      height="84"
+      alt="Tortoise Original" />
+    <img id="imageOutput" src="" alt="Test Image" />
+    <script>
+      const imageOutputElement = document.getElementById("imageOutput");
+
+      async function fetchAndDisplayImage() {
+        try {
+          const response = await fetch("../media/test.png");
+          const body = await response.body;
+          // fetch response body is an instance of ReadableStream, which has both the reader and data to read
+          // first we create a reader from the body
+          const reader = await body.getReader();
+          // then we create a stream manually to read from the reader
+          const createStream = (reader) =>
+            new ReadableStream({
+              start(controller) {
+                function push() {
+                  reader.read().then(({ done, value }) => {
+                    if (done) {
+                      controller.close();
+                      return;
+                    }
+                    controller.enqueue(value);
+                    push();
+                  });
+                }
+                push();
+              },
+            });
+          const stream = createStream(reader);
+          // now create a blob from the stream
+          const blob = await new Response(stream).blob();
+          // create an object url from the blob
           const url = URL.createObjectURL(blob);
           imageOutputElement.src = url;
         } catch (error) {

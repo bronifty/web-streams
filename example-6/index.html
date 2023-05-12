@@ -9,34 +9,14 @@
     <script>
       const imageOutputElement = document.getElementById("imageOutput");
 
-      const createStream = (reader) =>
-        new ReadableStream({
-          async start(controller) {
-            while (true) {
-              const { done, value } = await reader.read();
-
-              if (done) {
-                break;
-              }
-
-              controller.enqueue(value);
-            }
-
-            controller.close();
-            reader.releaseLock();
-          },
-        });
-
-      const createBlob = (stream) => new Response(stream).blob();
-
       async function fetchAndDisplayImage() {
         try {
           const response = await fetch("../media/test.png");
-          const rb = await response.body;
-          const reader = await rb.getReader();
-
-          const stream = await createStream(reader);
-          const blob = await createBlob(stream);
+          // this part doesn't work
+          // const rb = await response.body;
+          // const reader = await rb.getReader();
+          // const blob = await reader.blob();
+          const blob = await response.blob();
           const url = URL.createObjectURL(blob);
           imageOutputElement.src = url;
         } catch (error) {
