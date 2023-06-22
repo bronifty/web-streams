@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <style>
+      .wrapper {
+        width: 600px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin: 0 auto;
+        margin-top: 5vh;
+      }
+
+      .progress-bar {
+        width: 100%;
+        background-color: whitesmoke;
+        padding: 2px;
+      }
+
+      .progress-bar-fill {
+        display: block;
+        height: 40px;
+        background-color: limegreen;
+        border-radius: 3px;
+        width: 0%;
+        transition: width 30ms ease-in-out;
+      }
+
+      .progress-text {
+        font-size: 1.5rem;
+        padding: 10px;
+      }
+    </style>
+    <div class="wrapper">
+      <div class="progress-bar">
+        <div class="progress-bar-fill"></div>
+      </div>
+      <div class="progress-text">0%</div>
+    </div>
+
+    <img id="img" src="" alt="" />
+    <script>
+      // create a progress bar and update it inside the readable stream
+
+      fetch(
+        "https://fetch-progress.anthum.com/30kbps/images/sunrise-baseline.jpg"
+      )
+        .then((res) => {
+          console.log(...res.headers);
+          const total = res.headers.get("content-length");
+          console.log(total);
+          let loaded = 0;
+
+          // get a reader from res body and use it inside a readable stream to show progress
+          const reader = res.body.getReader();
+          const stream = new ReadableStream({
+            start(controller) {
+              function push() {
+                reader.read().then(({ done, value }) => {
+                  if (done) {
+                    controller.close();
+                    return;
+                  }
+                  loaded += value.byteLength;
+                  let progressIndicator = `${Math.round(
+                    (loaded / total) * 100
+                  )}%`;
+
+                  document.querySelector(".progress-text").textContent =
+                    progressIndicator;
+                  document.querySelector(".progress-bar-fill").style.width =
+                    progressIndicator;
+
+                  controller.enqueue(value);
+                  push();
+                });
+              }
+              push();
+            },
+          });
+          return new Response(stream, { headers: res.headers });
+        })
+        .then((response) => response.blob())
+        .then((data) => {
+          // status("download completed");
+          document.getElementById("img").src = URL.createObjectURL(data);
+        });
+    </script>
+  </body>
+</html>
